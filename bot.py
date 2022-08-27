@@ -1,0 +1,208 @@
+import telebot
+import time
+import MySQLdb
+import serial
+import requests
+import socket
+from time import sleep
+import picamera
+from subprocess import call
+import random
+from os import remove
+from ftplib  import  FTP
+import os
+from datetime import date
+from datetime import datetime
+import serial
+from numpy import *
+import matplotlib.pyplot as plt
+from pylab import *
+
+import sys
+from TokenTelegram import tokenBot
+
+time.sleep(60)
+
+print ("hola soy el bot")
+#sys.exit(/home/pi/termica telegram.py)
+
+
+#bot = telebot.TeleBot("1504668503:AAEdSr1hysZE1JoXOEXp7zfL8bfotR6n7is")
+##bot = telebot.TeleBot("1872585631:AAFIu-d0XrWEW0F4JAhmYEnzcTxf1DCTey4")
+bot = telebot.TeleBot(tokenBot)
+
+#bot = telebot.TeleBot("943769984:AAGOjMs0T4Vu9-fuGzUcZ1fVU3YQctbupAE")
+#db = MySQLdb.connect(host="remotemysql.com",port=3306,user="XM627n3r8E",passwd="2p2MrFsNsj",db="XM627n3r8E")
+#cursor = db.cursor()
+#cursor.execute('select * from usuario  order by ID_Usuario desc limit 2 ')
+#for result in cursor.fetchall():
+#        id=str (result[2])
+#        print (id)
+#chat_id=str (result[2])
+#chat_id=str (1051367732)
+#ide del bot 
+chat_id=str (-426938410)
+
+
+
+@bot.message_handler(commands=['ayuda'])
+def ayuda(messaje):
+
+        texto = messaje.text
+
+        bot.send_message(chat_id, messaje.chat.id)        #chatID = messaje.chat.id # <--- ChatID para todos los ejercicios
+        #bot.send_message(chat_id, texto)
+        bot.send_message(chat_id,'....BIENVENIDO AL BOT LOS PINPOLLOS ....')
+        bot.send_message(chat_id, text='/foto -comando  para tomar foto ')
+        bot.send_message(chat_id, text='/video -comando para grabar un video de 10 segundos ')
+        bot.send_message(chat_id, text='/temperatura -comando para ver la temperatura  ')
+
+#        bot.send_message(chat_id, text='/grabar -comando para grabar una foto termica')
+        bot.send_message(chat_id, text='/termografo -comando para visualizar la foto termica')
+        bot.send_message(chat_id, text='  visitamos en la pagina oficial- https://polines.educatics.org')
+
+#        bot.send_message(chat_id, messaje.chat.id)
+
+
+#@bot.message_handler(commands=['pixel'])
+
+
+@bot.message_handler(commands=['video'])
+def ommand_picamera(m):
+
+        bot.send_message(chat_id, "espere un momento por favor, estamos trabajando en su peticion , esto puede tardar unos segundos :)") 
+        try:
+                with picamera.PiCamera() as camera:
+                        #camera.capture("/home/pi/termica/magen.jpg")
+                        # name = str(randrange(10))
+                        camera.start_recording("/home/pi/termica/12.h264")
+                        sleep(10)
+                        camera.stop_recording()
+
+                co= "MP4Box -add " + "/home/pi/termica/12.h264"  + " " + "/home/pi/termica/12.mp4"
+                call([co], shell=True)
+                phota = open('/home/pi/termica/12.mp4', 'rb')
+                bot.send_video(chat_id, phota)
+
+                remove('/home/pi/termica/12.mp4')
+                remove('/home/pi/termica/12.h264')
+                      #  remove('/home/pi/termica/12.mp4')
+                      #  remove('/home/pi/termica/12.h264')
+
+        except :
+                bot.send_message(chat_id, "Fallo al  arrancar la camara, prueba mas tarde")
+
+@bot.message_handler(commands=['foto'])
+def ommand_picamera(m):
+
+        bot.send_message(chat_id, "espere un momento por favor, estamos trabajando en su peticion")
+
+        try:
+                with picamera.PiCamera() as camera:
+                        camera.capture("/home/pi/termica/imagen.jpg")
+                sleep(1)
+                photo = open('/home/pi/termica/imagen.jpg', 'rb')
+                bot.send_photo(chat_id, photo)
+        except :
+
+
+
+                bot.send_message(chat_id, "Fallo al  arrancar la camara, prueba mas tarde")
+
+
+
+
+
+@bot.message_handler(commands=['temperatura'])
+def ommand_picamera(m):
+
+	import MySQLdb
+
+
+	database =MySQLdb.connect(host="educatics.org",port=3306,user="educaics_polines",passwd="educaics_polines",db="educaics_polines")
+	cursor = database.cursor()
+	cursor.execute("select temperatura_polin  from resumenes order by  id_resumen  DESC  limit 1")
+	for base in cursor:
+    	    print str(base)
+#	print base
+	database.close()
+	bot.send_message(chat_id, str(base))
+
+
+
+
+@bot.message_handler(commands=['termografo'])
+def ayuda(messaje):
+
+
+
+        import time
+        import os
+        os.system('python /home/pi/termica/foto-termica.py')
+       # bot.send_message(chat_id, text='se grabo la foto termica ya puedes acceder ala foto actual  entrando a /termografo')
+       # print "ejecutado grabador de foto termica"
+	bot.send_message(chat_id, "espere un momento por favor, estamos trabajando en su peticion")
+	time.sleep(2)	
+        #bot.send_message(chat_id, "espere un momento por favor, estamos trabajando en su peticion")
+
+#        from ftplib  import  FTP
+#        from datetime import datetime
+#        import os
+#        from datetime import datetime as dt
+
+#        nombre = type(datetime)
+#        now = datetime.now()
+
+
+#        servidor="ftpupload.net"
+#        user="epiz_26367076"
+#        passw="wnQycLqXnpjBeGJ"
+
+#        ftp_raiz     = '/htdocs/img' # donde queremos subir el fichero
+
+
+
+#        fichero_origen='/home/pi/termica/termica.png'
+#        fichero_destino=(str(now)+'.png')
+        try:
+
+#                s=FTP(servidor)
+#                s.login(user, passw)
+
+                photo = open('/home/pi/termica/termica.png', 'rb')
+                bot.send_photo(chat_id, photo)
+
+#                try:
+
+#                        f = open(fichero_origen, 'rb')
+#                        s.cwd(ftp_raiz)
+#                        s.storbinary('STOR ' + fichero_destino, f)
+#                        f.close()
+#                        s.quit()
+#                        print   "se envio la  foto termica al hosting"
+#                except:
+#                        print "no se pudo enviar la foto termica  al hosting"
+
+
+        except :
+                bot.send_message(chat_id, "Fallo al  arrancar la camara, prueba mas tarde")
+
+
+
+def telegram_polling():
+    try:
+#	bot.infinity_polling(True)
+        bot.polling(none_stop=True, timeout=60) #constantly get messages from Telegram
+    except:
+#        traceback_error_string=traceback.format_exc()
+#        with open("Error.Log", "a") as myfile:
+#            myfile.write("\r\n\r\n" + time.strftime("%c")+"\r\n<<ERROR polling>>\r\n"+ traceback_error_string + "\r\n<<ERROR polling>>")
+	bot.polling(none_stop=True)
+#        bot.stop_polling()
+#        time.sleep(10)
+#        telegram_polling()
+
+if __name__ == '__main__':    
+    telegram_polling()
+
+
